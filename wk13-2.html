@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>파닉스 탐험대 4학년 — 소리 규칙 찾기</title>
+<style>
+  :root {
+    --bg: #fef9c3;
+    --surface: #ffffff;
+    --surface-soft: #fefce8;
+    --ink: #1e293b;
+    --ink-muted: #52637a;
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #dbeafe;
+    --accent: #f59e0b;
+    --accent-light: #fef3c7;
+    --success: #16a34a;
+    --success-light: #dcfce7;
+    --error: #dc2626;
+    --error-light: #fee2e2;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --border: #eab308;
+    --border-soft: #fde047;
+    --shadow: 0 8px 24px rgba(133, 77, 14, 0.1);
+    --radius: 16px;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+    min-height: 100vh;
+    padding-bottom: 40px;
+    word-break: keep-all;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    color: #fff;
+    padding: 20px 24px;
+    box-shadow: 0 4px 16px rgba(30, 58, 138, 0.2);
+  }
+
+  .header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .brand h1 {
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand p {
+    font-size: 0.92rem;
+    color: #dbeafe;
+    margin-top: 3px;
+  }
+
+  .stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .stat-pill {
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .voice-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.25);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+
+  .voice-controls button {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+
+  .voice-controls button.active {
+    background: #fff;
+    color: #1e3a8a;
+    border-color: #fff;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 24px auto 0;
+    padding: 0 20px;
+  }
+
+  /* Vowel Selector Tabs */
+  .vowel-selector {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .vowel-btn {
+    background: var(--surface);
+    border: 2px solid #facc15;
+    border-radius: var(--radius);
+    padding: 14px 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.18s ease;
+    box-shadow: 0 2px 6px rgba(133, 77, 14, 0.08);
+  }
+
+  .vowel-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+  }
+
+  .vowel-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+  }
+
+  .vowel-letter {
+    font-size: 1.65rem;
+    font-weight: 800;
+    display: block;
+    line-height: 1.1;
+  }
+
+  .vowel-sub {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    display: block;
+    margin-top: 5px;
+    font-weight: 700;
+  }
+
+  /* Activity Mode Navigation */
+  .mode-nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .mode-btn {
+    background: var(--surface);
+    border: 2px solid #facc15;
+    border-radius: 12px;
+    padding: 12px 12px;
+    font-size: 0.94rem;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+
+  .mode-btn:hover {
+    background: var(--surface-soft);
+  }
+
+  .mode-btn.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+
+  /* Cards & Layout */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 26px;
+    box-shadow: var(--shadow);
+    border: 2px solid #facc15;
+  }
+
+  .section-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #fde047;
+  }
+
+  .section-title h2 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .section-title p {
+    color: var(--ink-muted);
+    font-size: 0.95rem;
+    margin-top: 3px;
+  }
+
+  /* Pattern Detective Banner */
+  .rule-box {
+    background: var(--surface-soft);
+    border-left: 5px solid var(--primary);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 22px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .rule-col h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .badge-short {
+    background: var(--accent-light);
+    color: #92400e;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+
+  .badge-long {
+    background: var(--purple-light);
+    color: #5b21b6;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+
+  .rule-col p {
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+
+  .pattern-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .chip {
+    background: #fff;
+    border: 1px solid #facc15;
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* Word Grid in Pattern Lab */
+  .word-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 16px;
+  }
+
+  .word-card {
+    border: 2px solid #fde047;
+    border-radius: 14px;
+    padding: 18px;
+    background: #fff;
+    transition: all 0.18s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .word-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.1);
+  }
+
+  .word-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+
+  .word-display {
+    font-size: 1.65rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+  }
+
+  .syllable-break {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .highlight-short {
+    background: var(--accent-light);
+    color: #92400e;
+    padding: 0 4px;
+    border-radius: 5px;
+    border-bottom: 2px solid #f59e0b;
+  }
+
+  .highlight-long {
+    background: var(--purple-light);
+    color: #5b21b6;
+    padding: 0 4px;
+    border-radius: 5px;
+    border-bottom: 2px solid #7c3aed;
+  }
+
+  .clue-text {
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: var(--surface-soft);
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+
+  .word-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* Accent Comparison Box */
+  .accent-strip {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #fde047;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .accent-strip-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-muted);
+  }
+
+  .accent-btns {
+    display: flex;
+    gap: 6px;
+  }
+
+  .btn-accent-pill {
+    flex: 1;
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    color: #78350f;
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+  }
+
+  .btn-accent-pill:hover {
+    background: #fef3c7;
+    border-color: #f59e0b;
+  }
+
+  .accent-badge-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--primary-light);
+    color: #1e3a8a;
+    border: 1px solid #93c5fd;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+
+  .btn {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+  }
+
+  .btn-soft {
+    background: var(--surface-soft);
+    color: var(--ink);
+    border: 1px solid #facc15;
+  }
+
+  .btn-soft:hover {
+    background: #fef08a;
+  }
+
+  .btn-success {
+    background: var(--success);
+    color: #fff;
+  }
+
+  .btn-large {
+    padding: 13px 22px;
+    font-size: 1.02rem;
+    border-radius: 12px;
+  }
+
+  /* Listening Sort Activity */
+  .listen-stage {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .mystery-box {
+    background: linear-gradient(135deg, #eff6ff 0%, #fefce8 100%);
+    border: 2px dashed #60a5fa;
+    border-radius: 18px;
+    padding: 26px 20px;
+    margin-bottom: 22px;
+  }
+
+  .mystery-word {
+    font-size: 2.15rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 12px 0 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .listen-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .optional-accents-panel {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed #cbd5e1;
+  }
+
+  .optional-accents-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-muted);
+    margin-bottom: 8px;
+  }
+
+  .choice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .choice-card {
+    background: #fff;
+    border: 2px solid #facc15;
+    border-radius: 14px;
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all 0.16s ease;
+    text-align: center;
+  }
+
+  .choice-card:hover:not(:disabled) {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.1);
+  }
+
+  .choice-card:disabled {
+    cursor: default;
+  }
+
+  .choice-card.correct {
+    background: var(--success-light);
+    border-color: var(--success);
+    color: #14532d;
+  }
+
+  .choice-card.wrong {
+    background: var(--error-light);
+    border-color: var(--error);
+    color: #7f1d1d;
+  }
+
+  .choice-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .choice-desc {
+    font-size: 0.88rem;
+    color: var(--ink-muted);
+    font-weight: 600;
+  }
+
+  /* Speak & Check Studio */
+  .speak-box {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .target-word-banner {
+    background: var(--surface-soft);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid #facc15;
+  }
+
+  .target-word-big {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 8px 0 4px;
+  }
+
+  .mic-btn {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+  }
+
+  .mic-btn:hover {
+    transform: scale(1.05);
+    background: var(--primary-dark);
+  }
+
+  .mic-btn.listening {
+    background: var(--error);
+    animation: pulse 1.2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); }
+    70% { box-shadow: 0 0 0 18px rgba(220, 38, 38, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+  }
+
+  .feedback-banner {
+    margin-top: 18px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.96rem;
+    text-align: left;
+  }
+
+  .feedback-banner.success {
+    background: var(--success-light);
+    color: #14532d;
+    border: 1px solid #86efac;
+  }
+
+  .feedback-banner.error {
+    background: var(--error-light);
+    color: #7f1d1d;
+    border: 1px solid #fca5a5;
+  }
+
+  .feedback-banner.info {
+    background: var(--primary-light);
+    color: #1e3a8a;
+    border: 1px solid #93c5fd;
+  }
+
+  /* Pattern Builder / Cloze Challenge */
+  .builder-sentence {
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: var(--surface-soft);
+    padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    line-height: 1.7;
+    text-align: center;
+    border: 1px solid #fde047;
+  }
+
+  .blank-slot {
+    display: inline-block;
+    min-width: 130px;
+    border-bottom: 3px solid var(--primary);
+    color: var(--primary);
+    font-weight: 800;
+    text-align: center;
+    padding: 0 8px;
+  }
+
+  .option-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .word-option-btn {
+    background: #fff;
+    border: 2px solid #facc15;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .word-option-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+
+  .word-option-btn.correct {
+    background: var(--success-light);
+    border-color: var(--success);
+    color: #14532d;
+  }
+
+  .word-option-btn.wrong {
+    background: var(--error-light);
+    border-color: var(--error);
+    color: #7f1d1d;
+  }
+
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.88rem;
+    color: var(--ink-muted);
+    font-weight: 700;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 8px;
+    background: #fef08a;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--primary);
+    transition: width 0.3s ease;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-muted);
+    cursor: pointer;
+  }
+
+  @media (max-width: 720px) {
+    .mode-nav {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .vowel-selector {
+      gap: 6px;
+    }
+    .vowel-letter {
+      font-size: 1.3rem;
+    }
+    .vowel-sub {
+      font-size: 0.7rem;
+    }
+    .choice-grid {
+      grid-template-columns: 1fr;
+    }
+    .card {
+      padding: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <h1>🔬 파닉스 탐험대 (4학년)</h1>
+      <p>미국식 영어 발음을 기본으로 짧은 소리와 긴 소리 규칙을 배워요!</p>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-pill">⭐ 별점: <span id="scoreDisplay">0</span></div>
+      <div class="stat-pill">🔥 연속 정답: <span id="streakDisplay">0</span></div>
+      <div class="voice-controls" title="영어 발음 속도 조절">
+        <span>속도:</span>
+        <button id="speedNormal" class="active" onclick="setSpeechRate(0.95)">보통</button>
+        <button id="speedSlow" onclick="setSpeechRate(0.68)">천천히</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 모음 선택 탭 -->
+  <div class="vowel-selector" id="vowelSelector">
+    <button class="vowel-btn active" data-vowel="A" onclick="selectVowel('A')">
+      <span class="vowel-letter">A</span>
+      <span class="vowel-sub">짧은 / 긴 소리</span>
+    </button>
+    <button class="vowel-btn" data-vowel="E" onclick="selectVowel('E')">
+      <span class="vowel-letter">E</span>
+      <span class="vowel-sub">짧은 / 긴 소리</span>
+    </button>
+    <button class="vowel-btn" data-vowel="I" onclick="selectVowel('I')">
+      <span class="vowel-letter">I</span>
+      <span class="vowel-sub">짧은 / 긴 소리</span>
+    </button>
+    <button class="vowel-btn" data-vowel="O" onclick="selectVowel('O')">
+      <span class="vowel-letter">O</span>
+      <span class="vowel-sub">짧은 / 긴 소리</span>
+    </button>
+    <button class="vowel-btn" data-vowel="U" onclick="selectVowel('U')">
+      <span class="vowel-letter">U</span>
+      <span class="vowel-sub">짧은 / 긴 소리</span>
+    </button>
+  </div>
+
+  <!-- 4단계 활동 메뉴 -->
+  <div class="mode-nav">
+    <button class="mode-btn active" data-mode="explore" onclick="selectMode('explore')">
+      🔍 1. 규칙 찾기
+    </button>
+    <button class="mode-btn" data-mode="listen" onclick="selectMode('listen')">
+      🎧 2. 듣고 고르기
+    </button>
+    <button class="mode-btn" data-mode="speak" onclick="selectMode('speak')">
+      🎙️ 3. 따라 말하기
+    </button>
+    <button class="mode-btn" data-mode="context" onclick="selectMode('context')">
+      🧩 4. 문장 퀴즈
+    </button>
+  </div>
+
+  <!-- 활동 화면 -->
+  <div class="card" id="appContainer"></div>
+</main>
+
+<script>
+/**
+ * 초등학교 4학년 눈높이에 맞춘 한국어 안내 + 영어 파닉스 활동 데이터
+ * - 기본 파닉스 발음은 미국식 영어(en-US)를 기준으로 제공하며,
+ * - 영국식 영어(en-GB) 및 호주식 영어(en-AU) 발음을 선택적으로 비교해서 들을 수 있습니다.
+ */
+const PHONICS_DATA = {
+  A: {
+    letter: "A",
+    shortLabel: "짧은 A ('apple'의 애 소리)",
+    longLabel: "긴 A ('acorn'의 에이 소리)",
+    shortRule: "a 뒤에 자음이 바로 막고 있거나 쌍자음(-ll-, -pp-)이 오면 짧게 '애' 소리가 나요.",
+    longRule: "a로 소리 마디가 끝나거나, 끝에 마법의 e(a_e), ai/ay가 오면 알파벳 이름 그대로 '에이' 소리가 나요.",
+    shortPatterns: ["자음이 막아주는 모양 (a + 자음)", "쌍자음 (-ll-, -pp-)"],
+    longPatterns: ["열린 마디 (a로 끝남)", "마법의 e (a_e)", "모음 짝꿍 (ai, ay)"],
+    words: [
+      {
+        word: "fantastic",
+        syllables: "fan • tas • tic",
+        type: "short",
+        pattern: "자음이 막는 마디 (-tas-)",
+        highlight: "tas",
+        clue: "'tas'에서 s가 a 뒤를 막고 있어서 짧은 '애' 소리가 나요.",
+        sentence: "Our science experiment had a ________ result!"
+      },
+      {
+        word: "alphabet",
+        syllables: "al • pha • bet",
+        type: "short",
+        pattern: "자음이 막는 마디 (al-)",
+        highlight: "al",
+        clue: "첫 마디 'al-'에서 l이 a를 막아주어 짧은 '애' 소리가 나요.",
+        sentence: "There are twenty-six letters in the English ________."
+      },
+      {
+        word: "galaxy",
+        syllables: "gal • ax • y",
+        type: "short",
+        pattern: "자음이 막는 마디 (gal-)",
+        highlight: "gal",
+        clue: "긴 단어지만 첫 마디 'gal-'이 l로 닫혀 있어서 짧은 '애' 소리가 나요.",
+        sentence: "Earth is located inside the Milky Way ________."
+      },
+      {
+        word: "tornado",
+        syllables: "tor • na • do",
+        type: "long",
+        pattern: "열린 마디 (-na-)",
+        highlight: "na",
+        clue: "가운데 'na'가 모음 a로 탁 트여 끝나서 길게 '에이' 소리가 나요!",
+        sentence: "The spinning ________ touched down in the empty field."
+      },
+      {
+        word: "container",
+        syllables: "con • tain • er",
+        type: "long",
+        pattern: "모음 짝꿍 (ai)",
+        highlight: "tain",
+        clue: "모음 짝꿍 'ai'가 함께 모여 길게 '에이' 소리를 내요.",
+        sentence: "Please put your leftover lunch inside a plastic ________."
+      },
+      {
+        word: "celebrate",
+        syllables: "cel • e • brate",
+        type: "long",
+        pattern: "마법의 e (a_e)",
+        highlight: "brate",
+        clue: "맨 끝의 묵음 'e'가 힘을 주어서 앞의 a가 '에이' 소리를 내요.",
+        sentence: "We will ________ her birthday with chocolate cake."
+      },
+      {
+        word: "volcano",
+        syllables: "vol • ca • no",
+        type: "long",
+        pattern: "열린 마디 (-ca-)",
+        highlight: "ca",
+        clue: "'ca' 뒤에 막는 자음이 없어서 길게 '에이' 소리가 나요.",
+        sentence: "Hot lava flowed down the side of the ________."
+      },
+      {
+        word: "calendar",
+        syllables: "cal • en • dar",
+        type: "short",
+        pattern: "자음이 막는 마디 (cal-)",
+        highlight: "cal",
+        clue: "첫 마디 'cal-'을 l이 막고 있어서 짧은 '애' 소리가 나요.",
+        sentence: "Check the classroom ________ to see when the field trip starts."
+      }
+    ]
+  },
+
+  E: {
+    letter: "E",
+    shortLabel: "짧은 E ('echo'의 에 소리)",
+    longLabel: "긴 E ('eagle'의 이 소리)",
+    shortRule: "e 뒤에 자음이 막고 있거나 쌍자음(-ll-, -ss-)이 오면 짧게 '에' 소리가 나요.",
+    longRule: "e로 마디가 끝나거나, ee / ea 짝꿍, 마법의 e(e_e)가 있으면 길게 '이' 소리가 나요.",
+    shortPatterns: ["자음이 막는 마디 (e + 자음)", "쌍자음 (-ll-, -ss-)"],
+    longPatterns: ["열린 마디 (e로 끝남)", "모음 짝꿍 (ee, ea)", "마법의 e (e_e)"],
+    words: [
+      {
+        word: "excellent",
+        syllables: "ex • cel • lent",
+        type: "short",
+        pattern: "쌍자음 (-ll-)",
+        highlight: "cel",
+        clue: "쌍자음 'll'이 가운데 마디를 막아주어 짧은 '에' 소리가 나요.",
+        sentence: "You did an ________ job explaining the math problem."
+      },
+      {
+        word: "skeleton",
+        syllables: "skel • e • ton",
+        type: "short",
+        pattern: "자음이 막는 마디 (skel-)",
+        highlight: "skel",
+        clue: "첫 마디 'skel-'에서 l이 e 뒤를 막고 있어 짧은 '에' 소리가 나요.",
+        sentence: "The museum displayed the giant ________ of a dinosaur."
+      },
+      {
+        word: "umbrella",
+        syllables: "um • brel • la",
+        type: "short",
+        pattern: "쌍자음 (-ll-)",
+        highlight: "brel",
+        clue: "'vanilla'처럼 쌍자음 'll'이 있어서 앞의 e가 짧은 '에' 소리가 나요!",
+        sentence: "Don't forget your ________ because rain is in the forecast."
+      },
+      {
+        word: "emerald",
+        syllables: "em • er • ald",
+        type: "short",
+        pattern: "자음이 막는 마디 (em-)",
+        highlight: "em",
+        clue: "첫 마디 'em-'이 m으로 닫혀 있어서 짧은 '에' 소리가 나요.",
+        sentence: "The queen's crown had a bright green ________ in the center."
+      },
+      {
+        word: "secret",
+        syllables: "se • cret",
+        type: "long",
+        pattern: "열린 마디 (se-)",
+        highlight: "se",
+        clue: "첫 마디 'se-'가 모음 e로 끝나서 이름 그대로 길게 '이' 소리가 나요.",
+        sentence: "They built a ________ clubhouse behind the oak tree."
+      },
+      {
+        word: "athlete",
+        syllables: "ath • lete",
+        type: "long",
+        pattern: "마법의 e (e_e)",
+        highlight: "lete",
+        clue: "끝에 있는 마법의 'e' 덕분에 앞의 e가 길게 '이' 소리를 내요.",
+        sentence: "Every Olympic ________ trains for hours each day."
+      },
+      {
+        word: "eager",
+        syllables: "ea • ger",
+        type: "long",
+        pattern: "모음 짝꿍 (ea)",
+        highlight: "ea",
+        clue: "모음 짝꿍 'ea'가 만나서 길게 '이' 소리를 내요.",
+        sentence: "The fourth graders were ________ to start the robotics club."
+      },
+      {
+        word: "electricity",
+        syllables: "e • lec • tric • i • ty",
+        type: "long",
+        pattern: "열린 마디 (e-)",
+        highlight: "e",
+        clue: "맨 앞 글자 'e-' 혼자 하나의 열린 마디를 이루어 길게 '이' 소리가 나요!",
+        sentence: "Lightning is a powerful natural form of ________."
+      }
+    ]
+  },
+
+  I: {
+    letter: "I",
+    shortLabel: "짧은 I ('igloo'의 이 소리)",
+    longLabel: "긴 I ('island'의 아이 소리)",
+    shortRule: "'vanilla'처럼 쌍자음(-ll-, -ff-)이나 자음이 i 뒤를 막으면 짧게 '이' 소리가 나요.",
+    longRule: "i로 마디가 끝나거나(si-, di-), 마법의 e(i_e), -igh가 오면 길게 '아이' 소리가 나요.",
+    shortPatterns: ["쌍자음 함정 (-ll-, -ff-)", "자음이 막는 마디 (i + 자음)"],
+    longPatterns: ["열린 마디 (si-, di-)", "마법의 e (i_e)", "글자 짝꿍 (-igh)"],
+    words: [
+      {
+        word: "vanilla",
+        syllables: "va • nil • la",
+        type: "short",
+        pattern: "쌍자음 (-ll-)",
+        highlight: "nil",
+        clue: "l이 두 번(-ll-) 겹쳐서 'nil' 마디를 막아주기 때문에 '아이'가 아니라 짧은 '이' 소리가 나요!",
+        sentence: "My favorite ice cream flavor is ________ with chocolate chips."
+      },
+      {
+        word: "gorilla",
+        syllables: "go • ril • la",
+        type: "short",
+        pattern: "쌍자음 (-ll-)",
+        highlight: "ril",
+        clue: "'vanilla'와 똑같은 규칙이에요! 쌍자음 'll' 덕분에 짧은 '이' 소리가 나요.",
+        sentence: "A silverback ________ is the largest living primate."
+      },
+      {
+        word: "invisible",
+        syllables: "in • vis • i • ble",
+        type: "short",
+        pattern: "자음이 막는 마디 (-vis-)",
+        highlight: "vis",
+        clue: "'in-'과 '-vis-' 모두 자음이 뒤를 막고 있어서 짧은 '이' 소리가 나요.",
+        sentence: "In the story, the magic cloak made the hero ________."
+      },
+      {
+        word: "difficult",
+        syllables: "dif • fi • cult",
+        type: "short",
+        pattern: "쌍자음 (-ff-)",
+        highlight: "dif",
+        clue: "쌍자음 'ff'가 첫 마디 'dif-'를 막아주어 짧은 '이' 소리가 나요.",
+        sentence: "The final level of the puzzle was very ________ to solve."
+      },
+      {
+        word: "silent",
+        syllables: "si • lent",
+        type: "long",
+        pattern: "열린 마디 (si-)",
+        highlight: "si",
+        clue: "'vanilla'와 달리 l이 하나뿐이라 'si-'가 열려 있어서 길게 '아이' 소리가 나요!",
+        sentence: "The library is a ________ zone for reading and studying."
+      },
+      {
+        word: "dinosaur",
+        syllables: "di • no • saur",
+        type: "long",
+        pattern: "열린 마디 (di-)",
+        highlight: "di",
+        clue: "첫 마디 'di-'가 모음 i로 끝나서 길게 '아이' 소리가 나요.",
+        sentence: "Triceratops was a plant-eating ________ with three horns."
+      },
+      {
+        word: "lightning",
+        syllables: "light • ning",
+        type: "long",
+        pattern: "글자 짝꿍 (-igh-)",
+        highlight: "light",
+        clue: "묵음 'gh'가 뒤에 오면 앞의 i는 길게 '아이' 소리를 내요.",
+        sentence: "A bright flash of ________ lit up the dark storm clouds."
+      },
+      {
+        word: "horizon",
+        syllables: "ho • ri • zon",
+        type: "long",
+        pattern: "열린 마디 (-ri-)",
+        highlight: "ri",
+        clue: "가운데 마디 '-ri-'를 막는 자음이 없어서 길게 '아이' 소리가 나요.",
+        sentence: "We watched the sun sink slowly below the ________."
+      }
+    ]
+  },
+
+  O: {
+    letter: "O",
+    shortLabel: "짧은 O ('octopus'의 아 소리)",
+    longLabel: "긴 O ('ocean'의 오우 소리)",
+    shortRule: "o 뒤에 자음이 막고 있거나 쌍자음(-cc-, -pp-)이 오면 짧게 '아' 소리가 나요.",
+    longRule: "o로 마디가 끝나거나(ro-, mo-), 마법의 e(o_e), oa 짝꿍이 있으면 길게 '오우' 소리가 나요.",
+    shortPatterns: ["자음이 막는 마디 (o + 자음)", "쌍자음 (-cc-, -pp-)"],
+    longPatterns: ["열린 마디 (ro-, mo-)", "마법의 e (o_e)", "모음 짝꿍 (oa)"],
+    words: [
+      {
+        word: "broccoli",
+        syllables: "broc • co • li",
+        type: "short",
+        pattern: "쌍자음 (-cc-)",
+        highlight: "broc",
+        clue: "쌍자음 'cc'가 첫 마디 'broc-'을 막아주어 짧은 '아' 소리가 나요.",
+        sentence: "Steamed ________ looks like tiny green trees on your plate."
+      },
+      {
+        word: "octopus",
+        syllables: "oc • to • pus",
+        type: "short",
+        pattern: "자음이 막는 마디 (oc-)",
+        highlight: "oc",
+        clue: "첫 마디 'oc-'을 c가 막고 있어서 짧은 '아' 소리가 나요.",
+        sentence: "An ________ has eight arms and three hearts."
+      },
+      {
+        word: "confident",
+        syllables: "con • fi • dent",
+        type: "short",
+        pattern: "자음이 막는 마디 (con-)",
+        highlight: "con",
+        clue: "n이 첫 마디 'con-'을 막고 있어서 짧은 '아' 소리가 나요.",
+        sentence: "After practicing her speech, Maya felt ________ on stage."
+      },
+      {
+        word: "opposite",
+        syllables: "op • po • site",
+        type: "short",
+        pattern: "쌍자음 (-pp-)",
+        highlight: "op",
+        clue: "쌍자음 'pp'가 첫 번째 o를 막아주어 짧은 '아' 소리가 나요.",
+        sentence: "North is the ________ direction of south."
+      },
+      {
+        word: "robot",
+        syllables: "ro • bot",
+        type: "long",
+        pattern: "열린 마디 (ro-)",
+        highlight: "ro",
+        clue: "가운데 b가 하나뿐이라 'ro-'가 열려 있어서 길게 '오우' 소리가 나요!",
+        sentence: "Our team programmed a ________ to pick up colored blocks."
+      },
+      {
+        word: "microscope",
+        syllables: "mi • cro • scope",
+        type: "long",
+        pattern: "마법의 e (o_e)",
+        highlight: "scope",
+        clue: "끝의 마법의 'e'가 '-scope'의 o를 길게 '오우' 소리로 만들어 줘요.",
+        sentence: "We used a ________ in science class to see tiny plant cells."
+      },
+      {
+        word: "approach",
+        syllables: "ap • proach",
+        type: "long",
+        pattern: "모음 짝꿍 (oa)",
+        highlight: "proach",
+        clue: "모음 짝꿍 'oa'가 만나서 부드럽고 긴 '오우' 소리를 내요.",
+        sentence: "Please slow down as you ________ the crosswalk."
+      },
+      {
+        word: "moment",
+        syllables: "mo • ment",
+        type: "long",
+        pattern: "열린 마디 (mo-)",
+        highlight: "mo",
+        clue: "첫 마디 'mo-'가 모음 o로 끝나서 길게 '오우' 소리가 나요.",
+        sentence: "Wait just a ________ while I tie my shoelaces."
+      }
+    ]
+  },
+
+  U: {
+    letter: "U",
+    shortLabel: "짧은 U ('umbrella'의 어 소리)",
+    longLabel: "긴 U ('uniform'의 유/우 소리)",
+    shortRule: "u 뒤에 자음이 막고 있거나 쌍자음(-tt-, -zz-)이 오면 짧게 '어' 소리가 나요.",
+    longRule: "u로 마디가 끝나거나(u-, mu-), 마법의 e(u_e)가 오면 길게 '유' 또는 '우' 소리가 나요.",
+    shortPatterns: ["자음이 막는 마디 (u + 자음)", "쌍자음 (-tt-, -zz-)"],
+    longPatterns: ["열린 마디 (u-, mu-)", "마법의 e (u_e)"],
+    words: [
+      {
+        word: "butterfly",
+        syllables: "but • ter • fly",
+        type: "short",
+        pattern: "쌍자음 (-tt-)",
+        highlight: "but",
+        clue: "쌍자음 'tt'가 첫 마디 'but-'을 막아주어 짧은 '어' 소리가 나요.",
+        sentence: "A monarch ________ migrated thousands of miles south."
+      },
+      {
+        word: "subtraction",
+        syllables: "sub • trac • tion",
+        type: "short",
+        pattern: "자음이 막는 마디 (sub-)",
+        highlight: "sub",
+        clue: "b가 첫 마디 'sub-'을 막고 있어서 짧은 '어' 소리가 나요.",
+        sentence: "Check your ________ answer by using addition."
+      },
+      {
+        word: "puzzle",
+        syllables: "puz • zle",
+        type: "short",
+        pattern: "쌍자음 (-zz-)",
+        highlight: "puz",
+        clue: "쌍자음 'zz'가 'puz-'를 막아주어 짧은 '어' 소리가 나요.",
+        sentence: "We finally found the missing corner piece of the ________."
+      },
+      {
+        word: "thunder",
+        syllables: "thun • der",
+        type: "short",
+        pattern: "자음이 막는 마디 (thun-)",
+        highlight: "thun",
+        clue: "n이 'thun-'을 막고 있어서 짧은 '어' 소리가 나요.",
+        sentence: "Loud ________ rumbled right after the lightning flash."
+      },
+      {
+        word: "uniform",
+        syllables: "u • ni • form",
+        type: "long",
+        pattern: "열린 마디 (u-)",
+        highlight: "u",
+        clue: "맨 앞 글자 'u-' 혼자 열린 마디라서 알파벳 이름 그대로 '유' 소리가 나요!",
+        sentence: "Every soccer player wore a clean blue and white ________."
+      },
+      {
+        word: "musical",
+        syllables: "mu • si • cal",
+        type: "long",
+        pattern: "열린 마디 (mu-)",
+        highlight: "mu",
+        clue: "뒤에 s가 하나뿐이라 'mu-'가 열려 있어서 길게 '유' 소리가 나요.",
+        sentence: "The trumpet is a brass ________ instrument."
+      },
+      {
+        word: "costume",
+        syllables: "cos • tume",
+        type: "long",
+        pattern: "마법의 e (u_e)",
+        highlight: "tume",
+        clue: "끝의 마법의 'e' 덕분에 '-tume'의 u가 길게 '우' 소리를 내요.",
+        sentence: "She wore an astronaut ________ for the school play."
+      },
+      {
+        word: "universe",
+        syllables: "u • ni • verse",
+        type: "long",
+        pattern: "열린 마디 (u-)",
+        highlight: "u",
+        clue: "첫 마디가 'u-' 혼자 열려 있어서 길게 '유' 소리가 나요.",
+        sentence: "Scientists study stars and planets across the ________."
+      }
+    ]
+  }
+};
+
+// 앱 상태 관리
+const state = {
+  vowel: "A",
+  mode: "explore",
+  score: 0,
+  streak: 0,
+  speechRate: 0.95,
+  showSyllables: true,
+  // 2단계: 듣고 고르기
+  listenIndex: 0,
+  listenOrder: [],
+  listenAnswered: false,
+  listenChoice: null,
+  listenWordRevealed: false,
+  // 3단계: 따라 말하기
+  speakIndex: 0,
+  isRecording: false,
+  speakFeedback: null,
+  // 4단계: 문장 퀴즈
+  contextIndex: 0,
+  contextOrder: [],
+  contextAnswered: false,
+  contextSelectedWord: null
+};
+
+// 억양별 음성 선택 헬퍼 (미국식 기본, 영국식/호주식 선택 지원)
+function getVoiceForAccent(accentCode) {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+
+  if (accentCode === "en-GB") {
+    return voices.find(v => v.lang === "en-GB" && (v.name.includes("Daniel") || v.name.includes("Google UK English") || v.name.includes("Natural")))
+      || voices.find(v => v.lang === "en-GB" || v.lang === "en_GB")
+      || null;
+  }
+  if (accentCode === "en-AU") {
+    return voices.find(v => v.lang === "en-AU" && (v.name.includes("Karen") || v.name.includes("Google") || v.name.includes("Natural")))
+      || voices.find(v => v.lang === "en-AU" || v.lang === "en_AU")
+      || null;
+  }
+  // 기본: 미국식 영어 (en-US)
+  return voices.find(v => v.lang === "en-US" && (v.name.includes("Samantha") || v.name.includes("Google US English") || v.name.includes("Natural")))
+    || voices.find(v => v.lang === "en-US" || v.lang === "en_US")
+    || voices.find(v => v.lang.startsWith("en"))
+    || null;
+}
+
+// 영어 음성 출력 (TTS) - 기본 미국식(en-US), 선택 시 영국식(en-GB)/호주식(en-AU) 재생
+function speakText(text, customRate = null, accentCode = "en-US") {
+  if (!("speechSynthesis" in window)) {
+    alert("이 브라우저에서는 음성 듣기 기능을 지원하지 않아요.");
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = accentCode;
+  utter.rate = customRate || state.speechRate;
+  utter.pitch = 1.02;
+
+  const chosenVoice = getVoiceForAccent(accentCode);
+  if (chosenVoice) {
+    utter.voice = chosenVoice;
+  }
+
+  window.speechSynthesis.speak(utter);
+}
+
+// 음절별로 끊어 읽기 (기본 미국식 영어 기준)
+function speakSyllables(syllableStr) {
+  const parts = syllableStr.split("•").map(s => s.trim());
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+
+  const usVoice = getVoiceForAccent("en-US");
+
+  parts.forEach((part, idx) => {
+    const utter = new SpeechSynthesisUtterance(part);
+    utter.lang = "en-US";
+    if (usVoice) utter.voice = usVoice;
+    utter.rate = 0.72;
+    utter.pitch = idx % 2 === 0 ? 1.05 : 0.98;
+    window.speechSynthesis.speak(utter);
+  });
+}
+
+function setSpeechRate(rate) {
+  state.speechRate = rate;
+  document.getElementById("speedNormal").classList.toggle("active", rate === 0.95);
+  document.getElementById("speedSlow").classList.toggle("active", rate === 0.68);
+}
+
+function updateStats(points = 0, correct = true) {
+  if (correct) {
+    state.score += points;
+    state.streak += 1;
+  } else {
+    state.streak = 0;
+  }
+  document.getElementById("scoreDisplay").textContent = state.score;
+  document.getElementById("streakDisplay").textContent = state.streak;
+}
+
+function shuffleArray(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function resetActivityIndices() {
+  const words = PHONICS_DATA[state.vowel].words;
+  state.listenIndex = 0;
+  state.listenOrder = shuffleArray(words);
+  state.listenAnswered = false;
+  state.listenChoice = null;
+  state.listenWordRevealed = false;
+
+  state.speakIndex = 0;
+  state.speakFeedback = null;
+
+  state.contextIndex = 0;
+  state.contextOrder = shuffleArray(words);
+  state.contextAnswered = false;
+  state.contextSelectedWord = null;
+}
+
+function selectVowel(vowel) {
+  state.vowel = vowel;
+  document.querySelectorAll(".vowel-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.vowel === vowel);
+  });
+  resetActivityIndices();
+  render();
+}
+
+function selectMode(mode) {
+  state.mode = mode;
+  document.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.mode === mode);
+  });
+  resetActivityIndices();
+  render();
+}
+
+function toggleSyllables() {
+  state.showSyllables = !state.showSyllables;
+  render();
+}
+
+function formatHighlightedWord(wordObj) {
+  const { word, highlight, type } = wordObj;
+  const cls = type === "short" ? "highlight-short" : "highlight-long";
+  const idx = word.toLowerCase().indexOf(highlight.toLowerCase());
+  if (idx === -1) return word;
+  const before = word.slice(0, idx);
+  const match = word.slice(idx, idx + highlight.length);
+  const after = word.slice(idx + highlight.length);
+  return `${before}<span class="${cls}">${match}</span>${after}`;
+}
+
+/* =========================================================
+   1단계: 규칙 찾기 (EXPLORE)
+========================================================= */
+function renderExplore() {
+  const data = PHONICS_DATA[state.vowel];
+  const container = document.getElementById("appContainer");
+
+  const cardsHtml = data.words.map((w) => `
+    <div class="word-card">
+      <div>
+        <div class="word-top">
+          <div class="word-display">${formatHighlightedWord(w)}</div>
+          <span class="${w.type === 'short' ? 'badge-short' : 'badge-long'}">
+            ${w.type === 'short' ? '짧은 ' + data.letter : '긴 ' + data.letter}
+          </span>
+        </div>
+        ${state.showSyllables ? `<div class="syllable-break">소리 마디: <strong>${w.syllables}</strong> • ${w.pattern}</div>` : ''}
+        <div class="clue-text">💡 ${w.clue}</div>
+      </div>
+      <div>
+        <div class="word-actions">
+          <button class="btn btn-primary" style="flex:1" onclick="speakText('${w.word}', null, 'en-US')">
+            🇺🇸 미국식 듣기
+          </button>
+          <button class="btn btn-soft" style="flex:1" onclick="speakSyllables('${w.syllables}')">
+            🐢 끊어 듣기
+          </button>
+        </div>
+        <div class="accent-strip">
+          <span class="accent-strip-label">🌍 다른 나라 발음도 비교해 볼까요? (선택)</span>
+          <div class="accent-btns">
+            <button class="btn-accent-pill" onclick="speakText('${w.word}', null, 'en-GB')">
+              🇬🇧 영국식 발음
+            </button>
+            <button class="btn-accent-pill" onclick="speakText('${w.word}', null, 'en-AU')">
+              🇦🇺 호주식 발음
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  container.innerHTML = `
+    <div class="section-header">
+      <div class="section-title">
+        <h2>1단계. 글자 규칙 찾기 (${data.letter}) <span class="accent-badge-primary">🇺🇸 미국식 발음 기준</span></h2>
+        <p><strong>${data.letter}</strong> 주변의 글자 모양을 보면 어떤 소리가 날지 미리 알 수 있어요!</p>
+      </div>
+      <label class="toggle-row">
+        <input type="checkbox" ${state.showSyllables ? "checked" : ""} onchange="toggleSyllables()" />
+        소리 마디 표시하기
+      </label>
+    </div>
+
+    <div class="rule-box">
+      <div class="rule-col">
+        <h3><span class="badge-short">짧은 ${data.letter}</span> ${data.shortLabel}</h3>
+        <p>${data.shortRule}</p>
+        <div class="pattern-chips">
+          ${data.shortPatterns.map(p => `<span class="chip">${p}</span>`).join("")}
+        </div>
+      </div>
+      <div class="rule-col">
+        <h3><span class="badge-long">긴 ${data.letter}</span> ${data.longLabel}</h3>
+        <p>${data.longRule}</p>
+        <div class="pattern-chips">
+          ${data.longPatterns.map(p => `<span class="chip">${p}</span>`).join("")}
+        </div>
+      </div>
+    </div>
+
+    <div class="word-grid">${cardsHtml}</div>
+  `;
+}
+
+/* =========================================================
+   2단계: 듣고 고르기 (LISTENING)
+========================================================= */
+function renderListen() {
+  const data = PHONICS_DATA[state.vowel];
+  const container = document.getElementById("appContainer");
+  const total = state.listenOrder.length;
+  const current = state.listenOrder[state.listenIndex];
+  const pct = Math.round(((state.listenIndex) / total) * 100);
+
+  container.innerHTML = `
+    <div class="section-header">
+      <div class="section-title">
+        <h2>2단계. 소리 듣고 구별하기 (${data.letter}) <span class="accent-badge-primary">🇺🇸 미국식 발음 기준</span></h2>
+        <p>단어를 잘 듣고 <strong>짧은 ${data.letter}</strong>인지 <strong>긴 ${data.letter}</strong>인지 골라 보세요.</p>
+      </div>
+    </div>
+
+    <div class="progress-row">
+      <span>문제 ${state.listenIndex + 1} / ${total}</span>
+      <span>모음 ${data.letter} 듣기 연습</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" style="width: ${pct}%"></div>
+    </div>
+
+    <div class="listen-stage">
+      <div class="mystery-box">
+        <div style="font-size: 0.9rem; font-weight: 700; color: var(--ink-muted);">
+          1. 먼저 미국식 영어 발음으로 단어를 들어 보세요
+        </div>
+
+        <div class="mystery-word">
+          ${state.listenWordRevealed || state.listenAnswered ? formatHighlightedWord(current) : "🎧 비밀 단어 #" + (state.listenIndex + 1)}
+        </div>
+
+        ${state.listenWordRevealed || state.listenAnswered
+          ? `<div class="syllable-break">${current.syllables}</div>`
+          : `<div style="font-size: 0.92rem; color: var(--ink-muted); margin-bottom: 8px;">철자를 보지 않고 소리에 집중해 보세요!</div>`
+        }
+
+        <div class="listen-buttons">
+          <button class="btn btn-primary btn-large" onclick="speakText('${current.word}', null, 'en-US')">
+            🇺🇸 미국식 단어 듣기
+          </button>
+          <button class="btn btn-soft" onclick="speakText('${current.word}', 0.62, 'en-US')">
+            🐢 천천히 듣기
+          </button>
+          ${!state.listenWordRevealed && !state.listenAnswered ? `
+            <button class="btn btn-soft" onclick="revealListenWord()">
+              👁️ 철자 힌트 보기
+            </button>
+          ` : ""}
+        </div>
+
+        <div class="optional-accents-panel">
+          <div class="optional-accents-title">🌍 선택 듣기: 영국식 · 호주식 영어로는 어떻게 들릴까요?</div>
+          <div class="listen-buttons" style="margin-top: 4px;">
+            <button class="btn-accent-pill" style="max-width: 160px;" onclick="speakText('${current.word}', null, 'en-GB')">
+              🇬🇧 영국식 발음 듣기
+            </button>
+            <button class="btn-accent-pill" style="max-width: 160px;" onclick="speakText('${current.word}', null, 'en-AU')">
+              🇦🇺 호주식 발음 듣기
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.96rem; font-weight: 700; color: var(--ink);">
+        2. 어떤 ${data.letter} 소리가 들렸나요?
+      </div>
+
+      <div class="choice-grid">
+        <button class="choice-card ${getListenChoiceClass('short')}"
+          ${state.listenAnswered ? "disabled" : ""}
+          onclick="submitListenChoice('short')">
+          <span class="choice-title">짧은 ${data.letter}</span>
+          <span class="choice-desc">${data.shortLabel}</span>
+        </button>
+
+        <button class="choice-card ${getListenChoiceClass('long')}"
+          ${state.listenAnswered ? "disabled" : ""}
+          onclick="submitListenChoice('long')">
+          <span class="choice-title">긴 ${data.letter}</span>
+          <span class="choice-desc">${data.longLabel}</span>
+        </button>
+      </div>
+
+      ${state.listenAnswered ? `
+        <div class="feedback-banner ${state.listenChoice === current.type ? 'success' : 'error'}">
+          <div>
+            <strong>${state.listenChoice === current.type ? '🎉 정답이에요!' : '🧐 아쉽지만 다시 확인해 볼까요?'}</strong>
+            이 단어는 <strong>${current.word}</strong> (${current.syllables})이고, <strong>${current.type === 'short' ? '짧은 ' + data.letter : '긴 ' + data.letter}</strong> 소리가 나요.
+          </div>
+          <div style="margin-top: 6px; font-weight: 500;">💡 ${current.clue}</div>
+          <div style="margin-top: 14px; text-align: right;">
+            <button class="btn btn-primary" onclick="nextListenWord()">
+              ${state.listenIndex + 1 < total ? "다음 문제 ➡️" : "처음부터 다시 하기 🔄"}
+            </button>
+          </div>
+        </div>
+      ` : ""}
+    </div>
+  `;
+}
+
+function getListenChoiceClass(type) {
+  if (!state.listenAnswered) return "";
+  const current = state.listenOrder[state.listenIndex];
+  if (type === current.type) return "correct";
+  if (type === state.listenChoice && type !== current.type) return "wrong";
+  return "";
+}
+
+function revealListenWord() {
+  state.listenWordRevealed = true;
+  renderListen();
+}
+
+function submitListenChoice(choice) {
+  if (state.listenAnswered) return;
+  const current = state.listenOrder[state.listenIndex];
+  state.listenAnswered = true;
+  state.listenChoice = choice;
+  state.listenWordRevealed = true;
+
+  if (choice === current.type) {
+    updateStats(10, true);
+  } else {
+    updateStats(0, false);
+  }
+  renderListen();
+}
+
+function nextListenWord() {
+  if (state.listenIndex + 1 < state.listenOrder.length) {
+    state.listenIndex += 1;
+  } else {
+    state.listenIndex = 0;
+    state.listenOrder = shuffleArray(PHONICS_DATA[state.vowel].words);
+  }
+  state.listenAnswered = false;
+  state.listenChoice = null;
+  state.listenWordRevealed = false;
+  renderListen();
+  speakText(state.listenOrder[state.listenIndex].word, null, "en-US");
+}
+
+/* =========================================================
+   3단계: 따라 말하기 (SPEAKING)
+========================================================= */
+function renderSpeak() {
+  const data = PHONICS_DATA[state.vowel];
+  const words = data.words;
+  const current = words[state.speakIndex];
+  const container = document.getElementById("appContainer");
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  container.innerHTML = `
+    <div class="section-header">
+      <div class="section-title">
+        <h2>3단계. 소리 내어 따라 말하기 (${data.letter}) <span class="accent-badge-primary">🇺🇸 미국식 발음 연습</span></h2>
+        <p>미국식 원어민 소리를 먼저 들은 다음, 마이크를 누르고 또박또박 따라 말해 보세요!</p>
+      </div>
+      <div style="font-weight: 700; color: var(--ink-muted);">
+        단어 ${state.speakIndex + 1} / ${words.length}
+      </div>
+    </div>
+
+    <div class="speak-box">
+      <div class="target-word-banner">
+        <span class="${current.type === 'short' ? 'badge-short' : 'badge-long'}">
+          ${current.type === 'short' ? '짧은 ' + data.letter : '긴 ' + data.letter} • ${current.pattern}
+        </span>
+        <div class="target-word-big">${formatHighlightedWord(current)}</div>
+        <div class="syllable-break" style="font-size: 1.05rem;">${current.syllables}</div>
+        <p style="font-size: 0.94rem; color: var(--ink); max-width: 480px; margin: 8px auto 16px;">
+          💡 ${current.clue}
+        </p>
+
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="speakText('${current.word}', null, 'en-US')">
+            🇺🇸 미국식 발음 듣기
+          </button>
+          <button class="btn btn-soft" onclick="speakSyllables('${current.syllables}')">
+            🐢 마디별로 끊어 듣기
+          </button>
+        </div>
+
+        <div class="optional-accents-panel">
+          <div class="optional-accents-title">🌍 다른 억양과 비교해 보기 (듣기 전용)</div>
+          <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn-accent-pill" style="max-width: 150px;" onclick="speakText('${current.word}', null, 'en-GB')">
+              🇬🇧 영국식 발음
+            </button>
+            <button class="btn-accent-pill" style="max-width: 150px;" onclick="speakText('${current.word}', null, 'en-AU')">
+              🇦🇺 호주식 발음
+            </button>
+          </div>
+        </div>
+      </div>
+
+      ${SpeechRecognition ? `
+        <div>
+          <button class="mic-btn ${state.isRecording ? 'listening' : ''}" onclick="startSpeechCheck()" title="마이크 누르고 말하기">
+            🎙️
+          </button>
+          <div style="font-weight: 700; font-size: 0.98rem; color: var(--ink);">
+            ${state.isRecording ? "듣고 있어요! 지금 \"" + current.word + "\"라고 말해 보세요!" : "마이크 버튼을 누르고 \"" + current.word + "\"라고 말해 보세요"}
+          </div>
+        </div>
+      ` : `
+        <div class="feedback-banner info">
+          <strong>안내:</strong> 이 브라우저에서는 마이크 음성 인식이 지원되지 않아요.
+          위의 <strong>미국식 발음 듣기</strong>를 누르고 큰 소리로 따라 읽은 뒤 아래 버튼을 눌러 주세요!
+          <div style="margin-top: 12px;">
+            <button class="btn btn-success" onclick="manualSpeakPass()">✅ "${current.word}" 큰 소리로 따라 읽었어요!</button>
+          </div>
+        </div>
+      `}
+
+      ${state.speakFeedback ? `
+        <div class="feedback-banner ${state.speakFeedback.status}">
+          ${state.speakFeedback.message}
+        </div>
+      ` : ""}
+
+      <div style="display: flex; justify-content: space-between; margin-top: 24px; padding-top: 16px; border-top: 1px solid #fde047;">
+        <button class="btn btn-soft" onclick="changeSpeakWord(-1)">⬅️ 이전 단어</button>
+        <button class="btn btn-primary" onclick="changeSpeakWord(1)">다음 단어 ➡️</button>
+      </div>
+    </div>
+  `;
+}
+
+function startSpeechCheck() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition || state.isRecording) return;
+
+  const current = PHONICS_DATA[state.vowel].words[state.speakIndex];
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 3;
+
+  state.isRecording = true;
+  state.speakFeedback = null;
+  renderSpeak();
+
+  recognition.onresult = (event) => {
+    state.isRecording = false;
+    const transcripts = [];
+    for (let i = 0; i < event.results[0].length; i++) {
+      transcripts.push(event.results[0][i].transcript.toLowerCase().trim().replace(/[.,!?]/g, ""));
+    }
+    const target = current.word.toLowerCase();
+    const matched = transcripts.some(t => t === target || t.includes(target));
+
+    if (matched) {
+      updateStats(15, true);
+      state.speakFeedback = {
+        status: "success",
+        message: `🌟 아주 훌륭해요! "<strong>${transcripts[0]}</strong>"라고 정확하게 발음했어요! (${current.type === 'short' ? '짧은' : '긴'} ${state.vowel} 소리 성공!)`
+      };
+    } else {
+      updateStats(0, false);
+      state.speakFeedback = {
+        status: "error",
+        message: `🎤 방금은 "<strong>${transcripts[0] || '...'}</strong>"처럼 들렸어요. 소리 마디(<strong>${current.syllables}</strong>)로 나누어 한 번 더 도전해 볼까요?`
+      };
+    }
+    renderSpeak();
+  };
+
+  recognition.onerror = (event) => {
+    state.isRecording = false;
+    state.speakFeedback = {
+      status: "info",
+      message: `마이크 안내 (${event.error}): 브라우저의 마이크 허용이 켜져 있는지 확인하고 가까이에서 또박또박 말해 주세요.`
+    };
+    renderSpeak();
+  };
+
+  recognition.onend = () => {
+    if (state.isRecording) {
+      state.isRecording = false;
+      renderSpeak();
+    }
+  };
+
+  recognition.start();
+}
+
+function manualSpeakPass() {
+  updateStats(10, true);
+  state.speakFeedback = {
+    status: "success",
+    message: "🌟 큰 소리로 잘 연습했어요! 준비되면 다음 단어로 넘어가세요."
+  };
+  renderSpeak();
+}
+
+function changeSpeakWord(delta) {
+  const len = PHONICS_DATA[state.vowel].words.length;
+  state.speakIndex = (state.speakIndex + delta + len) % len;
+  state.speakFeedback = null;
+  state.isRecording = false;
+  renderSpeak();
+}
+
+/* =========================================================
+   4단계: 문장 퀴즈 (CONTEXT CHALLENGE)
+========================================================= */
+function renderContext() {
+  const data = PHONICS_DATA[state.vowel];
+  const total = state.contextOrder.length;
+  const current = state.contextOrder[state.contextIndex];
+  const container = document.getElementById("appContainer");
+
+  const others = data.words.filter(w => w.word !== current.word);
+  const distractors = shuffleArray(others).slice(0, 3);
+  const options = shuffleArray([current, ...distractors]);
+
+  if (!current._cachedOptions || current._cachedForIndex !== state.contextIndex) {
+    current._cachedOptions = options;
+    current._cachedForIndex = state.contextIndex;
+  }
+
+  const sentenceDisplay = current.sentence.replace(
+    "________",
+    `<span class="blank-slot">${state.contextAnswered ? current.word : "?"}</span>`
+  );
+
+  container.innerHTML = `
+    <div class="section-header">
+      <div class="section-title">
+        <h2>4단계. 힌트 보고 빈칸 채우기 (${data.letter}) <span class="accent-badge-primary">🇺🇸 미국식 발음 기준</span></h2>
+        <p><strong>소리 힌트</strong>와 <strong>문장 뜻</strong>에 모두 어울리는 단어를 찾아보세요!</p>
+      </div>
+      <div style="font-weight: 700; color: var(--ink-muted);">
+        문제 ${state.contextIndex + 1} / ${total}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+      <span class="${current.type === 'short' ? 'badge-short' : 'badge-long'}">
+        찾을 소리: ${current.type === 'short' ? '짧은 ' + data.letter : '긴 ' + data.letter}
+      </span>
+      <span class="chip">글자 힌트: ${current.pattern}</span>
+      <button class="btn btn-soft" onclick="speakText('${current.sentence.replace('________', current.word)}', null, 'en-US')">
+        🇺🇸 문장 전체 듣기
+      </button>
+    </div>
+
+    <div class="builder-sentence">
+      "${sentenceDisplay}"
+    </div>
+
+    <div style="text-align: center; font-weight: 700; color: var(--ink); font-size: 0.95rem;">
+      빈칸에 들어갈 <strong>${current.type === 'short' ? '짧은' : '긴'} ${data.letter}</strong> 단어를 고르세요:
+    </div>
+
+    <div class="option-pills">
+      ${current._cachedOptions.map(opt => {
+        let cls = "word-option-btn";
+        if (state.contextAnswered) {
+          if (opt.word === current.word) cls += " correct";
+          else if (opt.word === state.contextSelectedWord) cls += " wrong";
+        }
+        return `
+          <button class="${cls}" ${state.contextAnswered ? "disabled" : ""} onclick="submitContextChoice('${opt.word}')">
+            ${opt.word}
+          </button>
+        `;
+      }).join("")}
+    </div>
+
+    ${state.contextAnswered ? `
+      <div class="feedback-banner ${state.contextSelectedWord === current.word ? 'success' : 'error'}">
+        <div>
+          <strong>${state.contextSelectedWord === current.word ? '🏆 정확해요!' : '💡 정답을 확인해 볼까요?'}</strong>
+          정답은 <strong>${current.word}</strong> (${current.syllables})예요. <strong>${current.type === 'short' ? '짧은 ' + data.letter : '긴 ' + data.letter}</strong> 소리가 나죠!
+        </div>
+        <div style="margin-top: 6px; font-weight: 500;">💡 ${current.clue}</div>
+        <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button class="btn btn-soft" onclick="speakText('${current.word}', null, 'en-US')">🇺🇸 미국식 듣기</button>
+            <button class="btn-accent-pill" onclick="speakText('${current.word}', null, 'en-GB')">🇬🇧 영국식</button>
+            <button class="btn-accent-pill" onclick="speakText('${current.word}', null, 'en-AU')">🇦🇺 호주식</button>
+          </div>
+          <button class="btn btn-primary" onclick="nextContextQuestion()">
+            ${state.contextIndex + 1 < total ? "다음 문제 ➡️" : "새 라운드 시작 🔄"}
+          </button>
+        </div>
+      </div>
+    ` : ""}
+  `;
+}
+
+function submitContextChoice(word) {
+  if (state.contextAnswered) return;
+  const current = state.contextOrder[state.contextIndex];
+  state.contextAnswered = true;
+  state.contextSelectedWord = word;
+
+  if (word === current.word) {
+    updateStats(15, true);
+    speakText(current.word, null, "en-US");
+  } else {
+    updateStats(0, false);
+  }
+  renderContext();
+}
+
+function nextContextQuestion() {
+  const current = state.contextOrder[state.contextIndex];
+  delete current._cachedOptions;
+  if (state.contextIndex + 1 < state.contextOrder.length) {
+    state.contextIndex += 1;
+  } else {
+    state.contextIndex = 0;
+    state.contextOrder = shuffleArray(PHONICS_DATA[state.vowel].words);
+  }
+  state.contextAnswered = false;
+  state.contextSelectedWord = null;
+  renderContext();
+}
+
+// 화면 렌더링 라우터
+function render() {
+  if (state.mode === "explore") renderExplore();
+  else if (state.mode === "listen") renderListen();
+  else if (state.mode === "speak") renderSpeak();
+  else if (state.mode === "context") renderContext();
+}
+
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.onvoiceschanged = () => {};
+}
+
+// 앱 초기화
+resetActivityIndices();
+render();
+</script>
+</body>
+</html>
+
